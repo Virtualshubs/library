@@ -7,7 +7,7 @@
     const base64Scene = container.dataset.scene;
 
     // Construir la URL que el visor original va a interpretar
-    const visorURL = `https://load.3dtwins.tech/embeb.html?t=${encodeURIComponent(base64Scene)}`;
+    const visorURL = `https://viewer.3dtwins.tech/embeb.html?t=${encodeURIComponent(base64Scene)}`;
 
     // Crear iframe
     const iframe = document.createElement('iframe');
