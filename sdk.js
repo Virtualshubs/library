@@ -1,13 +1,9 @@
-// sdk.js
+
 (function(global){
   function init(options){
     const container = document.getElementById(options.containerId);
     if(!container) return;
-
-    // 1️⃣ Tomar Base64 del contenedor
     let base64Scene = container.dataset.scene || '';
-
-    // 2️⃣ Si existe ?scene= en la URL, sobrescribirlo
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.has('scene')) {
       base64Scene = urlParams.get('scene');
@@ -17,21 +13,15 @@
       console.error("No se ha proporcionado Base64 de la escena.");
       return;
     }
-
-    // 3️⃣ Construir URL del visor
+    
     const visorURL = `https://viewer.3dtwins.tech/embeb.html?t=${base64Scene}`;
-
-    // 4️⃣ Crear iframe
     const iframe = document.createElement('iframe');
     iframe.src = visorURL;
     iframe.width = '100%';
     iframe.height = '100%';
     iframe.style.border = 'none';
-
-    // 5️⃣ Limpiar contenedor y agregar iframe
     container.innerHTML = '';
     container.appendChild(iframe);
-
     console.log("SDK cargado: iframe con escena:", base64Scene);
   }
 
