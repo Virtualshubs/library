@@ -7,6 +7,7 @@
     return;
   }
 
+  // Inicializamos el visor
   VH.init({
     containerId: 'vh-container',
     scene: base64Scene
@@ -17,11 +18,15 @@
   const colorsContainer = document.getElementById('colors');
   let productName = '';
   let productAuthor = '';
+  let sceneBuyURL = ''; // <-- nueva variable para la URL de compra
+
   try {
     const decoded = atob(base64Scene);
     const params = new URLSearchParams(decoded.split('?')[1]);
     productName = params.get('name') || '';
     productAuthor = params.get('author') || 'Desconocido';
+    sceneBuyURL = params.get('buyURL') ? atob(params.get('buyURL')) : ''; // <-- leemos buyURL
+
     document.getElementById('product-name').innerText = productName;
     document.getElementById('product-author').innerText = 'Autor: ' + productAuthor;
 
@@ -38,7 +43,6 @@
           circle.addEventListener('click', () => {
             document.querySelectorAll('.color-circle').forEach(c=>c.classList.remove('selected'));
             circle.classList.add('selected');
-            console.log('Color seleccionado:', colorHex);
           });
           colorsContainer.appendChild(circle);
         }
@@ -48,6 +52,36 @@
     console.warn("No se pudo decodificar base64:", e);
   }
 
+  // -----------------------------
+  // Botón de compra dinámico
+  // -----------------------------
+  if(sceneBuyURL && sceneBuyURL.startsWith('https://')){
+    const container = document.getElementById('vh-container') || document.body;
+    if(getComputedStyle(container).position === 'static'){
+      container.style.position = 'relative';
+    }
+
+    const buyButton = document.createElement('button');
+    buyButton.className = 'buy-button';
+    buyButton.innerText = 'Comprar';
+    buyButton.style.position = 'absolute';
+    buyButton.style.top = '20px';
+    buyButton.style.right = '20px';
+    buyButton.style.zIndex = '9999';
+    buyButton.style.padding = '10px 20px';
+    buyButton.style.background = '#007bff';
+    buyButton.style.color = '#fff';
+    buyButton.style.border = 'none';
+    buyButton.style.borderRadius = '4px';
+    buyButton.style.cursor = 'pointer';
+    buyButton.onclick = () => window.open(sceneBuyURL, '_blank');
+
+    container.appendChild(buyButton);
+  }
+
+  // -----------------------------
+  // PDF
+  // -----------------------------
   const saveBtn = document.getElementById('save-button');
   saveBtn.addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
