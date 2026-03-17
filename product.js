@@ -103,4 +103,41 @@
     return [r,g,b];
   }
 
+
+
+    // 1️⃣ Obtenemos los parámetros de la URL
+  const urlParams = new URLSearchParams(window.location.search);
+
+  // 2️⃣ Leemos el parámetro buyURL (base64)
+  const encodedBuyURL = urlParams.get("buyURL");
+
+  // 3️⃣ Buscamos el botón de compra
+  const buyButton = document.getElementById("buy-button");
+
+  if (encodedBuyURL) {
+    try {
+      // 4️⃣ Decodificamos base64 y asignamos href
+      const decodedBuyURL = atob(decodeURIComponent(encodedBuyURL));
+      
+      // Validación de seguridad adicional
+      if (decodedBuyURL.startsWith("https://")) {
+        buyButton.href = decodedBuyURL; // Para <a> sería href
+        // Si es <button>, podemos redirigir al hacer click
+        buyButton.addEventListener("click", () => {
+          window.open(decodedBuyURL, "_blank");
+        });
+
+        // 5️⃣ Mostramos el botón
+        buyButton.style.display = "inline-block";
+      } else {
+        console.warn("La URL de compra no es segura:", decodedBuyURL);
+      }
+    } catch (err) {
+      console.error("Error decodificando la URL de compra:", err);
+    }
+  } else {
+    // No hay buyURL, ocultamos botón
+    buyButton.style.display = "none";
+  }
+
 })();
