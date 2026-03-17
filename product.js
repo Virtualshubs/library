@@ -1,6 +1,7 @@
 (async function(){
   const urlParams = new URLSearchParams(window.location.search);
-  let base64Scene = urlParams.get('scene') || '';
+  let base64Scene = '';
+  if(urlParams.has('scene')) base64Scene = urlParams.get('scene');
   if(!base64Scene) {
     console.error("No se ha proporcionado escena en la URL");
     return;
@@ -17,31 +18,16 @@
   const colorsContainer = document.getElementById('colors');
   let productName = '';
   let productAuthor = '';
-  let sceneBuyURL = ''; // URL de compra
 
   try {
     const decoded = atob(base64Scene);
-    const queryString = decoded.split('?')[1] || '';
-    const params = new URLSearchParams(queryString);
-
+    const params = new URLSearchParams(decoded.split('?')[1]);
     productName = params.get('name') || '';
     productAuthor = params.get('author') || 'Desconocido';
+
     document.getElementById('product-name').innerText = productName;
     document.getElementById('product-author').innerText = 'Autor: ' + productAuthor;
 
-    // Leemos la URL de compra si existe
-    const encodedBuyURL = params.get('buyURL') || params.get('modelUrl'); // soporta ambos nombres
-    if(encodedBuyURL){
-      try {
-        sceneBuyURL = atob(decodeURIComponent(encodedBuyURL));
-        if(!sceneBuyURL.startsWith('https://')) sceneBuyURL = '';
-      } catch(e){
-        console.warn("No se pudo decodificar la URL de compra:", e);
-        sceneBuyURL = '';
-      }
-    }
-
-    // Configuración de colores
     const config = params.get('config') || '';
     if(config){
       config.split('|').forEach((item,index)=>{
@@ -60,45 +46,14 @@
         }
       });
     }
-
   } catch(e){
     console.warn("No se pudo decodificar base64:", e);
   }
 
-  // -----------------------------
-  // Botón de compra dinámico
-  // -----------------------------
-  if(sceneBuyURL){
-    const container = document.getElementById('vh-container') || document.body;
-    if(getComputedStyle(container).position === 'static'){
-      container.style.position = 'relative';
-    }
-
-    const buyButton = document.createElement('button');
-    buyButton.className = 'buy-button';
-    buyButton.innerText = 'Comprar';
-    buyButton.style.position = 'absolute';
-    buyButton.style.top = '20px';
-    buyButton.style.right = '20px';
-    buyButton.style.zIndex = '9999';
-    buyButton.style.padding = '10px 20px';
-    buyButton.style.background = '#007bff';
-    buyButton.style.color = '#fff';
-    buyButton.style.border = 'none';
-    buyButton.style.borderRadius = '4px';
-    buyButton.style.cursor = 'pointer';
-    buyButton.onclick = () => window.open(sceneBuyURL, '_blank');
-
-    container.appendChild(buyButton);
-  }
-
-  // -----------------------------
   // PDF
-  // -----------------------------
   const saveBtn = document.getElementById('save-button');
   saveBtn.addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
-
     const pdf = new jsPDF('p', 'pt', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
     const margin = 40;
@@ -149,5 +104,4 @@
     const b = bigint & 255;
     return [r,g,b];
   }
-
 })();
