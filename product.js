@@ -105,35 +105,107 @@
     return [r,g,b];
   }
 
-  // -----------------------------
-  // Botón de compra dinámico
-  // -----------------------------
-  const encodedBuyURL = urlParams.get("buyURL");
-  if(encodedBuyURL){
-    try {
-      const decodedBuyURL = atob(decodeURIComponent(encodedBuyURL));
-      if(decodedBuyURL.startsWith("https://")){
-        // Creamos botón dinámico
-        const buyButton = document.createElement('button');
-        buyButton.className = 'buy-button';
-        buyButton.innerText = 'Comprar';
-        buyButton.style.padding = '10px 20px';
-        buyButton.style.background = '#007bff';
-        buyButton.style.color = '#fff';
-        buyButton.style.border = 'none';
-        buyButton.style.borderRadius = '4px';
-        buyButton.style.cursor = 'pointer';
-        buyButton.style.marginTop = '15px';
-        buyButton.addEventListener('click', () => window.open(decodedBuyURL, '_blank'));
-        // Insertamos en el contenedor del visor o body
-        const container = document.getElementById('vh-container') || document.body;
-        container.appendChild(buyButton);
-      } else {
-        console.warn("La URL de compra no es segura:", decodedBuyURL);
-      }
-    } catch(e){
-      console.error("Error decodificando buyURL:", e);
-    }
+// -----------------------------
+// Botón de compra dinámico con modal para editar URL
+// -----------------------------
+const encodedBuyURL = urlParams.get("buyURL");
+let finalBuyURL = encodedBuyURL ? atob(decodeURIComponent(encodedBuyURL)) : '';
+
+if(finalBuyURL && !finalBuyURL.startsWith("https://")) {
+  console.warn("La URL de compra no es segura:", finalBuyURL);
+  finalBuyURL = '';
+}
+
+// Creamos botón solo si hay URL o se va a definir
+const container = document.getElementById('vh-container') || document.body;
+if(getComputedStyle(container).position === 'static'){
+  container.style.position = 'relative';
+}
+
+// Modal para permitir editar la URL de compra
+const modal = document.createElement('div');
+modal.style.position = 'fixed';
+modal.style.top = '0';
+modal.style.left = '0';
+modal.style.width = '100%';
+modal.style.height = '100%';
+modal.style.background = 'rgba(0,0,0,0.6)';
+modal.style.display = 'flex';
+modal.style.alignItems = 'center';
+modal.style.justifyContent = 'center';
+modal.style.zIndex = '10000';
+modal.style.visibility = 'hidden'; // oculto al inicio
+
+const modalContent = document.createElement('div');
+modalContent.style.background = '#fff';
+modalContent.style.padding = '20px';
+modalContent.style.borderRadius = '8px';
+modalContent.style.minWidth = '300px';
+modalContent.style.textAlign = 'center';
+modal.appendChild(modalContent);
+
+const modalInput = document.createElement('input');
+modalInput.type = 'url';
+modalInput.placeholder = 'https://...';
+modalInput.style.width = '80%';
+modalInput.style.marginBottom = '10px';
+modalInput.value = finalBuyURL;
+modalContent.appendChild(modalInput);
+
+const modalBtn = document.createElement('button');
+modalBtn.innerText = 'Guardar y mostrar botón';
+modalBtn.style.padding = '8px 16px';
+modalBtn.style.cursor = 'pointer';
+modalBtn.style.background = '#28a745';
+modalBtn.style.color = '#fff';
+modalBtn.style.border = 'none';
+modalBtn.style.borderRadius = '4px';
+modalContent.appendChild(modalBtn);
+
+document.body.appendChild(modal);
+
+// Creamos el botón de compra pero inicialmente oculto
+const buyButton = document.createElement('button');
+buyButton.className = 'buy-button';
+buyButton.innerText = 'Comprar';
+buyButton.style.position = 'absolute';
+buyButton.style.top = '20px';
+buyButton.style.right = '20px';
+buyButton.style.zIndex = '9999';
+buyButton.style.padding = '10px 20px';
+buyButton.style.background = '#007bff';
+buyButton.style.color = '#fff';
+buyButton.style.border = 'none';
+buyButton.style.borderRadius = '4px';
+buyButton.style.cursor = 'pointer';
+buyButton.style.display = 'none'; // oculto hasta que se defina URL
+container.appendChild(buyButton);
+
+// Función para actualizar el botón
+function showBuyButton(url){
+  if(url && url.startsWith('https://')){
+    buyButton.style.display = 'inline-block';
+    buyButton.onclick = () => window.open(url, '_blank');
+  } else {
+    buyButton.style.display = 'none';
+    console.warn("URL de compra inválida:", url);
   }
+}
+
+// Si ya había URL en la query, mostramos el botón directamente
+if(finalBuyURL) showBuyButton(finalBuyURL);
+else modal.style.visibility = 'visible'; // mostramos modal si no hay URL
+
+// Evento de guardar modal
+modalBtn.addEventListener('click', () => {
+  const inputVal = modalInput.value.trim();
+  if(inputVal.startsWith('https://')){
+    finalBuyURL = inputVal;
+    showBuyButton(finalBuyURL);
+    modal.style.visibility = 'hidden';
+  } else {
+    alert('La URL debe empezar por https://');
+  }
+});
 
 })();
