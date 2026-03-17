@@ -7,6 +7,7 @@
     return;
   }
 
+  // Inicializamos el visor
   VH.init({
     containerId: 'vh-container',
     scene: base64Scene
@@ -48,6 +49,7 @@
     console.warn("No se pudo decodificar base64:", e);
   }
 
+  // PDF
   const saveBtn = document.getElementById('save-button');
   saveBtn.addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
@@ -103,6 +105,35 @@
     return [r,g,b];
   }
 
-
+  // -----------------------------
+  // Botón de compra dinámico
+  // -----------------------------
+  const encodedBuyURL = urlParams.get("buyURL");
+  if(encodedBuyURL){
+    try {
+      const decodedBuyURL = atob(decodeURIComponent(encodedBuyURL));
+      if(decodedBuyURL.startsWith("https://")){
+        // Creamos botón dinámico
+        const buyButton = document.createElement('button');
+        buyButton.className = 'buy-button';
+        buyButton.innerText = 'Comprar';
+        buyButton.style.padding = '10px 20px';
+        buyButton.style.background = '#007bff';
+        buyButton.style.color = '#fff';
+        buyButton.style.border = 'none';
+        buyButton.style.borderRadius = '4px';
+        buyButton.style.cursor = 'pointer';
+        buyButton.style.marginTop = '15px';
+        buyButton.addEventListener('click', () => window.open(decodedBuyURL, '_blank'));
+        // Insertamos en el contenedor del visor o body
+        const container = document.getElementById('vh-container') || document.body;
+        container.appendChild(buyButton);
+      } else {
+        console.warn("La URL de compra no es segura:", decodedBuyURL);
+      }
+    } catch(e){
+      console.error("Error decodificando buyURL:", e);
+    }
+  }
 
 })();
