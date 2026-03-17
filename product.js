@@ -1,7 +1,6 @@
 (async function(){
   const urlParams = new URLSearchParams(window.location.search);
-  let base64Scene = '';
-  if(urlParams.has('scene')) base64Scene = urlParams.get('scene');
+  let base64Scene = urlParams.get('scene') || '';
   if(!base64Scene) {
     console.error("No se ha proporcionado escena en la URL");
     return;
@@ -18,18 +17,31 @@
   const colorsContainer = document.getElementById('colors');
   let productName = '';
   let productAuthor = '';
-  let sceneBuyURL = ''; // <-- nueva variable para la URL de compra
+  let sceneBuyURL = ''; // URL de compra
 
   try {
     const decoded = atob(base64Scene);
-    const params = new URLSearchParams(decoded.split('?')[1]);
+    const queryString = decoded.split('?')[1] || '';
+    const params = new URLSearchParams(queryString);
+
     productName = params.get('name') || '';
     productAuthor = params.get('author') || 'Desconocido';
-    sceneBuyURL = params.get('buyURL') ? atob(params.get('buyURL')) : ''; // <-- leemos buyURL
-
     document.getElementById('product-name').innerText = productName;
     document.getElementById('product-author').innerText = 'Autor: ' + productAuthor;
 
+    // Leemos la URL de compra si existe
+    const encodedBuyURL = params.get('buyURL') || params.get('modelUrl'); // soporta ambos nombres
+    if(encodedBuyURL){
+      try {
+        sceneBuyURL = atob(decodeURIComponent(encodedBuyURL));
+        if(!sceneBuyURL.startsWith('https://')) sceneBuyURL = '';
+      } catch(e){
+        console.warn("No se pudo decodificar la URL de compra:", e);
+        sceneBuyURL = '';
+      }
+    }
+
+    // Configuración de colores
     const config = params.get('config') || '';
     if(config){
       config.split('|').forEach((item,index)=>{
@@ -48,6 +60,7 @@
         }
       });
     }
+
   } catch(e){
     console.warn("No se pudo decodificar base64:", e);
   }
@@ -55,7 +68,7 @@
   // -----------------------------
   // Botón de compra dinámico
   // -----------------------------
-  if(sceneBuyURL && sceneBuyURL.startsWith('https://')){
+  if(sceneBuyURL){
     const container = document.getElementById('vh-container') || document.body;
     if(getComputedStyle(container).position === 'static'){
       container.style.position = 'relative';
