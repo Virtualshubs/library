@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Catálogo 3D Twins</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 🔥 SIDEBAR */
+#catalog-container {
+  width: 260px;
+  min-width: 220px;
+  max-width: 300px;
+  height: 100vh;
+  overflow-y: auto;
+  background: transparent;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 🔥 VISOR */
+#vh-container {
+  flex: 1;
+  height: 100vh;
+  background: transparent;
+}
+
+/* TARJETA */
+.scene-card {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.scene-card:hover {
+  background: #222;
+}
+
+/* ACTIVA */
+.scene-card.active {
+  outline: 2px solid cyan;
+  background: #202020;
+  border-radius: 12px;
+}
+
+/* PREVIEW */
+.scene-preview {
+  width: 100%;
+  height: 100px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #111, #222);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+/* TITULO */
+.scene-title {
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+/* BOTONES */
+.scene-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.scene-buttons button {
+  flex: 1;
+  min-width: 80px;
+  padding: 5px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: rgba(0,255,255,0.12);
+  color: #fff;
+  font-size: 11px;
+  transition: 0.2s;
+}
+
+.scene-buttons button:hover {
+  background: rgba(0,255,255,0.25);
+}
+
+/* WATERMARK */
+.catalog-watermark {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  width: 70px;
+  opacity: 0.7;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    overflow: auto;
+  }
+
+  #catalog-container {
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-right: none;
+  }
+
+  #vh-container {
+    width: 100%;
+    height: 50vh;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="catalog-container"></div>
+<div id="vh-container" class="vh-scene" data-scene=""></div>
+
+<img id="catalog-watermark" class="catalog-watermark"
+src="https://viewer.3dtwins.tech/puntero_3dtwinsStar.png">
+
+<script src="https://cdn.3dtwins.tech/sdk.js"></script>
+
+
+<script>
+let scenesArray = [];
+
+const catalogContainer = document.getElementById('catalog-container');
+const vhContainer = document.getElementById('vh-container');
+const watermark = document.getElementById('catalog-watermark');
+
+watermark.addEventListener('click', () =>
+  window.open('https://www.3dtwins.es', '_blank')
+);
+
+
+function loadScene(base64Scene, card) {
+  if (!base64Scene) return;
+
+  vhContainer.setAttribute('data-scene', base64Scene);
+  VH.init({ containerId: 'vh-container' });
+
+  document.querySelectorAll('.scene-card').forEach(c => c.classList.remove('active'));
+  if (card) card.classList.add('active');
+}
+
+
+function copyIframe(base64Scene) {
+  const iframeCode = `<iframe src="/encapsulado.html?edit=${btoa(base64Scene)}" style="width:600px;height:400px;"></iframe>`;
+  navigator.clipboard.writeText(iframeCode)
+    .then(() => alert('Iframe copiado'))
+    .catch(err => console.error(err));
+}
+
+
+function downloadModelFromScene(base64Scene) {
+  try {
+    const cleanBase64 = decodeURIComponent(base64Scene);
+    const decodedUrl = atob(cleanBase64);
+
+    const match = decodedUrl.match(/modelUrl=([^&]+)/i);
+    if (!match) return alert('No se encontró modelUrl');
+
+    const modelUrl = decodeURIComponent(match[1]);
+
+    const a = document.createElement('a');
+    a.href = modelUrl;
+    a.download = modelUrl.split('/').pop().split('?')[0];
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+  } catch (err) {
+    console.error(err);
+    alert('Error al procesar la escena');
+  }
+}
+
+
+function extractSceneName(base64Scene) {
+  try {
+    const cleanBase64 = decodeURIComponent(base64Scene);
+    const decodedUrl = atob(cleanBase64);
+
+    const match = decodedUrl.match(/modelUrl=([^&]+)/i);
+    if (!match) return 'Escena';
+
+    const modelUrl = decodeURIComponent(match[1]);
+
+    let fileName = modelUrl.split('/').pop().split('?')[0];
+    fileName = fileName.replace('.glb', '').replace(/[-_]/g, ' ');
+
+    return fileName;
+
+  } catch {
+    return 'Escena';
+  }
+}
+
+
+function renderCatalog(scenes) {
+  catalogContainer.innerHTML = '';
+  if (!scenes.length) return;
+
+  scenes.forEach((scene, idx) => {
+    const card = document.createElement('div');
+    card.classList.add('scene-card');
+
+    const preview = document.createElement('div');
+    preview.classList.add('scene-preview');
+    preview.textContent = 'Preview';
+    card.appendChild(preview);
+
+    const title = document.createElement('div');
+    title.classList.add('scene-title');
+    title.textContent = extractSceneName(scene.scene);
+    card.appendChild(title);
+
+    const buttonsDiv = document.createElement('div');
+    buttonsDiv.classList.add('scene-buttons');
+
+    const loadBtn = document.createElement('button');
+    loadBtn.textContent = 'Ver';
+    loadBtn.onclick = () => loadScene(scene.scene, card);
+    buttonsDiv.appendChild(loadBtn);
+
+    if (scene.allowEmbed) {
+      const copyBtn = document.createElement('button');
+      copyBtn.textContent = 'Iframe';
+      copyBtn.onclick = () => copyIframe(scene.scene);
+      buttonsDiv.appendChild(copyBtn);
+    }
+
+    if (scene.allowDownload) {
+      const downloadBtn = document.createElement('button');
+      downloadBtn.textContent = 'Descargar';
+      downloadBtn.onclick = () => downloadModelFromScene(scene.scene);
+      buttonsDiv.appendChild(downloadBtn);
+    }
+
+    card.appendChild(buttonsDiv);
+    catalogContainer.appendChild(card);
+
+    if (idx === 0) loadScene(scene.scene, card);
+  });
+}
+
+renderCatalog(scenesArray);
+</script>
+
+</body>
+</html>
