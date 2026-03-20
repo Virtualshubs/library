@@ -1,6 +1,5 @@
 
 
-let scenesArray = [];
 
 const catalogContainer = document.getElementById('catalog-container');
 const vhContainer = document.getElementById('vh-container');
