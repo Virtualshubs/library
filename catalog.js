@@ -1,4 +1,30 @@
+let catalogInitialized = false;
 
+function initCatalog(scenes) {
+  if (catalogInitialized) return;
+  catalogInitialized = true;
+
+  if (!scenes || !scenes.length) {
+    console.warn('No hay escenas');
+    return;
+  }
+
+  renderCatalog(scenes);
+}
+window.addEventListener('message', (event) => {
+  if (event.data?.type === 'LOAD_SCENES') {
+    console.log('📦 Escenas recibidas');
+
+    initCatalog(event.data.payload);
+  }
+});
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.scenesArray && window.scenesArray.length) {
+    console.log('📦 Escenas desde script local');
+
+    initCatalog(window.scenesArray);
+  }
+});
 
 
 const catalogContainer = document.getElementById('catalog-container');
@@ -121,4 +147,4 @@ function renderCatalog(scenes) {
   });
 }
 
-renderCatalog(scenesArray);
+
