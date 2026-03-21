@@ -29,11 +29,21 @@
     window.open('https://www.3dtwins.es', '_blank')
   );
 
+  // === Inicializar motor 3D una sola vez ===
+  if (typeof VH !== 'undefined' && VH.init) {
+    VH.init({ containerId: 'vh-container' });
+  }
+
   // === Funciones internas ===
   function loadScene(base64Scene, card) {
     if (!base64Scene) return;
+
     vhContainer.setAttribute('data-scene', base64Scene);
-    if (typeof VH !== 'undefined' && VH.init) VH.init({ containerId: 'vh-container' });
+
+    if (typeof VH !== 'undefined' && VH.loadScene) {
+      VH.loadScene(base64Scene); // carga la escena sin reiniciar todo
+    }
+
     document.querySelectorAll('.scene-card').forEach(c => c.classList.remove('active'));
     if (card) card.classList.add('active');
   }
