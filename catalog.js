@@ -9,11 +9,12 @@ if (!watermark) {
   watermark.className = 'catalog-watermark';
   watermark.src = 'https://viewer.3dtwins.tech/puntero_3dtwinsStar.png';
 
-  watermark.style.position = 'fixed';
-  watermark.style.bottom = '10px';
-  watermark.style.right = '10px';
-  watermark.style.width = '50px';
-  watermark.style.cursor = 'pointer';
+watermark.style.position = 'fixed';
+watermark.style.bottom = '10px';
+watermark.style.left = '50%';
+watermark.style.transform = 'translateX(-50%)';
+watermark.style.width = '50px';
+watermark.style.cursor = 'pointer';
 
   document.body.appendChild(watermark);
 }
