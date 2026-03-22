@@ -33,20 +33,24 @@ function loadScene(base64Scene, card) {
   if (card) card.classList.add('active');
 }
 
-
 function copyIframe(base64Scene) {
   if (!base64Scene) return;
 
-  // limpiar encoding por si viene con %2F etc
   const cleanScene = encodeURIComponent(base64Scene);
 
-  const iframeCode = `<iframe src="https://scene.3dtwins.tech?scene=${cleanScene}" style="width:600px;height:400px;border:none;"></iframe>`;
+  const iframeCode = `
+<iframe 
+  src="https://scene.3dtwins.tech?scene=${cleanScene}" 
+  style="width:100%;height:400px;border:none;" 
+  allow="fullscreen"
+  allowfullscreen
+  loading="lazy">
+</iframe>`.trim();
 
   navigator.clipboard.writeText(iframeCode)
     .then(() => alert('Iframe copiado'))
     .catch(err => console.error(err));
 }
-
 
 function downloadModelFromScene(base64Scene) {
   try {
