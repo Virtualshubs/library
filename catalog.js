@@ -10,10 +10,10 @@ if (!watermark) {
   watermark.src = 'https://viewer.3dtwins.tech/puntero_3dtwinsStar.png';
 
 watermark.style.position = 'fixed';
-watermark.style.bottom = '25px';
-watermark.style.left = '50%';
+watermark.style.bottom = '10px';
+watermark.style.left = '40%';
 watermark.style.transform = 'translateX(-50%)';
-watermark.style.width = '50px';
+watermark.style.width = '40px';
 watermark.style.cursor = 'pointer';
 
   document.body.appendChild(watermark);
