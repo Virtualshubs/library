@@ -1,12 +1,26 @@
 
 const catalogContainer = document.getElementById('catalog-container');
 const vhContainer = document.getElementById('vh-container');
-const watermark = document.getElementById('catalog-watermark');
+let watermark = document.getElementById('catalog-watermark');
+
+if (!watermark) {
+  watermark = document.createElement('img');
+  watermark.id = 'catalog-watermark';
+  watermark.className = 'catalog-watermark';
+  watermark.src = 'https://viewer.3dtwins.tech/puntero_3dtwinsStar.png';
+
+  watermark.style.position = 'fixed';
+  watermark.style.bottom = '10px';
+  watermark.style.right = '10px';
+  watermark.style.width = '50px';
+  watermark.style.cursor = 'pointer';
+
+  document.body.appendChild(watermark);
+}
 
 watermark.addEventListener('click', () =>
   window.open('https://www.3dtwins.es', '_blank')
 );
-
 
 function loadScene(base64Scene, card) {
   if (!base64Scene) return;
