@@ -35,7 +35,13 @@ function loadScene(base64Scene, card) {
 
 
 function copyIframe(base64Scene) {
-  const iframeCode = `<iframe src="/encapsulado.html?edit=${btoa(base64Scene)}" style="width:600px;height:400px;"></iframe>`;
+  if (!base64Scene) return;
+
+  // limpiar encoding por si viene con %2F etc
+  const cleanScene = encodeURIComponent(base64Scene);
+
+  const iframeCode = `<iframe src="https://scene.3dtwins.tech?scene=${cleanScene}" style="width:600px;height:400px;border:none;"></iframe>`;
+
   navigator.clipboard.writeText(iframeCode)
     .then(() => alert('Iframe copiado'))
     .catch(err => console.error(err));
