@@ -11,7 +11,7 @@ if (!watermark) {
 
 watermark.style.position = 'fixed';
 watermark.style.bottom = '10px';
-watermark.style.left = '40%';
+watermark.style.left = '60%';
 watermark.style.transform = 'translateX(-50%)';
 watermark.style.width = '40px';
 watermark.style.cursor = 'pointer';
