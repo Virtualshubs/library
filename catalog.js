@@ -41,7 +41,7 @@ function copyIframe(base64Scene) {
   const iframeCode = `
 <iframe 
   src="https://scene.3dtwins.tech?scene=${cleanScene}" 
-  style="width:100%;height:400px;border:none;" 
+  style="width:100%;height:400px;border:none;z-index: 9999;" 
   allow="fullscreen"
   allowfullscreen
   loading="lazy">
