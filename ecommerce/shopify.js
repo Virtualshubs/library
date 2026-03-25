@@ -3,8 +3,6 @@
   const sceneBase64 = params.get("scene");
   if (!sceneBase64) return;
 
-  document.body.classList.add("vh-mode");
-
   let decoded;
   try { decoded = atob(sceneBase64); } 
   catch(e) { return; }
@@ -28,11 +26,7 @@
   // COLOR ENGINE
   function hexToRgb(hex){
     hex = hex.replace("#","");
-    return {
-      r: parseInt(hex.substring(0,2),16),
-      g: parseInt(hex.substring(2,4),16),
-      b: parseInt(hex.substring(4,6),16)
-    };
+    return { r: parseInt(hex.substring(0,2),16), g: parseInt(hex.substring(2,4),16), b: parseInt(hex.substring(4,6),16) };
   }
 
   function nameToRgb(name){
@@ -103,13 +97,11 @@
   iframe.style.border = "0";
   iframeWrapper.appendChild(iframe);
 
-  // PRODUCTO
+  // FETCH PRODUCTO + UI
   fetch(`/products/${productHandle}.js`)
     .then(res => res.json())
     .then(product => {
-
       let currentVariant = product.variants[0];
-
       if(config && config.includes("#")){
         const hex = config.split("#")[1];
         const matched = findClosestVariantByColor(product, hex);
@@ -138,16 +130,13 @@
       img.style.objectFit = "cover";
 
       const textDiv = document.createElement("div");
-
       header.appendChild(img);
       header.appendChild(textDiv);
       infoDiv.appendChild(header);
 
       const selectors = [];
-
       product.options.forEach((opt, i) => {
         const select = document.createElement("select");
-
         select.style.padding = "12px";
         select.style.borderRadius = "12px";
         select.style.border = "1px solid #eee";
@@ -172,7 +161,6 @@
       }
 
       const stockDiv = document.createElement("div");
-
       const qtyInput = document.createElement("input");
       qtyInput.type = "number";
       qtyInput.value = 1;
@@ -245,7 +233,6 @@
 
       selectors.forEach(s => s.addEventListener("change", updateVariant));
       qtyInput.addEventListener("input", updateVariant);
-
       updateVariant();
     });
 
