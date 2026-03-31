@@ -228,7 +228,19 @@
 
         if (qtyInput.value > maxQty) qtyInput.value = maxQty;
 
-        btn.href = `/cart/${currentVariant.id}:${qtyInput.value}`;
+        // ==== Shopify Add to Cart con properties ====
+        const customProperties = {};
+        selectors.forEach((s, i) => {
+          customProperties[`Option ${i+1}`] = s.value;
+        });
+        customProperties["Scene URL"] = `https://scene.3dtwins.tech?scene=${sceneBase64}`;
+        customProperties["Config"] = config || "";
+
+        const propsString = Object.entries(customProperties)
+          .map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+          .join('&');
+
+        btn.href = `/cart/${currentVariant.id}:${qtyInput.value}?${propsString}`;
       }
 
       selectors.forEach(s => s.addEventListener("change", updateVariant));
