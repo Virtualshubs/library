@@ -19,9 +19,12 @@
   let productName = '';
   let productAuthor = '';
 
+ window.addEventListener("load", () => {
   try {
     const decoded = atob(base64Scene);
-    const params = new URLSearchParams(decoded.split('?')[1]);
+    const queryString = decoded.includes('?') ? decoded.split('?')[1] : '';
+    const params = new URLSearchParams(queryString);
+
     productName = params.get('name') || '';
     productAuthor = params.get('author') || 'Desconocido';
 
@@ -46,9 +49,11 @@
         }
       });
     }
+
   } catch(e){
     console.warn("No se pudo decodificar base64:", e);
   }
+});
 
   // PDF
   const saveBtn = document.getElementById('save-button');
