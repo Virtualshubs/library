@@ -148,7 +148,34 @@ function updateProductPanel(card) {
 const designsRow = document.querySelector(".my-designs-row");
 const designsSection = document.getElementById("my-designs");
 
-function saveCurrentDesign(scene) { if (!scene || savedDesigns.has(scene)) return; const product = PRODUCTS.find(p => p.scene === scene); if (!product) return; const card = document.createElement("div"); card.className = "my-design-card"; card.dataset.scene = scene; card.innerHTML = <img src="${product.image}" /> <div class="card-info"> <div class="card-title">${product.title}</div> <div class="card-meta">${product.meta || ""}</div> <div class="card-price">${product.price || ""}</div> </div> ; card.addEventListener("click", () => load(scene)); designsRow.appendChild(card); savedDesigns.set(scene, true); designsSection.style.display = "block"; }
+function saveCurrentDesign(scene) {
+
+  if (!scene || savedDesigns.has(scene)) return;
+
+  const product = PRODUCTS.find(p => p.scene === scene);
+  if (!product) return;
+
+  const card = document.createElement("div");
+  card.className = "my-design-card";
+  card.dataset.scene = scene;
+
+  card.innerHTML = `
+    <img src="${product.image}" />
+    <div class="card-info">
+      <div class="card-title">${product.title}</div>
+      <div class="card-meta">${product.meta || ""}</div>
+      <div class="card-price">${product.price || ""}</div>
+    </div>
+  `;
+
+  card.addEventListener("click", () => load(scene));
+
+  designsRow.appendChild(card);
+
+  savedDesigns.set(scene, true);
+  designsSection.style.display = "block";
+}
+
 
 document.addEventListener("click", (e) => {
 
