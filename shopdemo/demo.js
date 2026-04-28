@@ -155,6 +155,13 @@ function saveCurrentDesign(scene) {
   const product = PRODUCTS.find(p => p.scene === scene);
   if (!product) return;
 
+  // 🔥 TRACK: añadido al historial (YOUR GALLERY)
+  track("gallery_add", {
+    scene_id: scene,
+    product_title: product.title,
+    product_price: product.price
+  });
+
   const card = document.createElement("div");
   card.className = "my-design-card";
   card.dataset.scene = scene;
@@ -175,7 +182,6 @@ function saveCurrentDesign(scene) {
   savedDesigns.set(scene, true);
   designsSection.style.display = "block";
 }
-
 
 document.addEventListener("click", (e) => {
 
